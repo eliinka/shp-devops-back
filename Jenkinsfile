@@ -3,6 +3,7 @@ pipeline {
     environment {
         IMAGE_NAME = "elinka/common-numbers"
         HUB_CRED_ID = "elinka_docker_hub"
+        PROJECT_DIR = "common-numbers"
     }
     stages {
         stage("build") {
@@ -19,6 +20,22 @@ pipeline {
                     sh 'docker login -u ${HUB_USERNAME} -p ${HUB_PASSWORD}'
                     sh 'docker push ${IMAGE_NAME}:${GIT_COMMIT}'
                     sh 'docker push ${IMAGE_NAME}:latest'
+                }
+            }
+        }
+        stage("deploy") {
+            agent any
+            steps {
+                withCredentials(
+                    [
+                        string(credentialsId: "production_ip", variable: 'SERVER_IP'),
+                        sshUserPrivateKey(credentialsId: "production_key", keyFileVariable: 'SERVER_KEY', usernameVariable: 'SERVER_USERNAME')
+                    ]
+                ) {
+                    sh 'ssh -i ${SERVER_KEY} ${SERVER_USERNAME}@${SERVER_IP} mkdir -p ${PROJECT_DIR}'
+                    sh 'scp -i ${SERVER_KEY} docker-compose.yml ${SERVER_USERNAME}@${SERVER_IP}:${PROJECT_DIR}'
+                    sh 'ssh -i ${SERVER_KEY} ${SERVER_USERNAME}@${SERVER_IP} docker compose -f ${PROJECT_DIR}/docker-compose.yml pull'
+                    sh 'ssh -i ${SERVER_KEY} ${SERVER_USERNAME}@${SERVER_IP} docker compose -f ${PROJECT_DIR}/docker-compose.yml up -d'
                 }
             }
         }

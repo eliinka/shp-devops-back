@@ -12,6 +12,28 @@ pipeline {
                 sh "docker build -t ${IMAGE_NAME}:${GIT_COMMIT} -t ${IMAGE_NAME}:latest ."
             }
         }
+     stage("sonar scan") {
+            agent any
+            steps {
+                withCredentials(
+                    [
+                    string(credentialsId: "sonarqube_url", variable: "SONARQUBE_URL"),
+                    usernamePassword(credentialsId: "elinka_front_token", usernameVariable: "PROJECT_KEY",
+                    passwordVariable: "PROJECT_TOKEN")
+                    ]
+                )
+                {
+                    sh  '''docker run \
+                        --rm \
+                        -e SONAR_HOST_URL="${SONARQUBE_URL}" \
+                        -e SONAR_SCANNER_OPTS="-Dsonar.projectKey=${PROJECT_KEY}" \
+                        -e SONAR_TOKEN="${PROJECT_TOKEN}" \
+                        -v "${WORKSPACE}:/usr/src" \
+                        sonarsource/sonar-scanner-cli'''
+                        }
+
+            }
+        }
         stage("push") {
             agent any
             steps {

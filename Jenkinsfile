@@ -2,6 +2,7 @@ pipeline {
     agent none
     environment {
         IMAGE_NAME = "elinka/common-numbers"
+        HUB_CRED_ID = "elinka_docker_hub"
     }
     stages {
         stage("build") {

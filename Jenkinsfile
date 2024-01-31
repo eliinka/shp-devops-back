@@ -18,7 +18,7 @@ pipeline {
                 withCredentials(
                     [
                     string(credentialsId: "sonarqube_url", variable: "SONARQUBE_URL"),
-                    usernamePassword(credentialsId: "elinka_front_token", usernameVariable: "PROJECT_KEY",
+                    usernamePassword(credentialsId: "elinka_sonar_token2", usernameVariable: "PROJECT_KEY",
                     passwordVariable: "PROJECT_TOKEN")
                     ]
                 )

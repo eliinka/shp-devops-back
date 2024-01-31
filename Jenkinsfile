@@ -10,8 +10,7 @@ pipeline {
                 sh "docker build -t ${IMAGE_NAME}:${GIT_COMMIT} -t ${IMAGE_NAME}:latest ."
             }
         }
-    }
-    stage("push") {
+        stage("push") {
             agent any
             steps {
                 withCredentials([usernamePassword(credentialsId: "${HUB_CRED_ID}",
@@ -22,4 +21,5 @@ pipeline {
                 }
             }
         }
+    }
 }

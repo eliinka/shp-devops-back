@@ -1,0 +1,7 @@
+version: "3"
+
+services:
+  server:
+    image: elinka/common-numbers:latest
+    ports:
+      - 8106:80
